@@ -318,9 +318,9 @@
             </div>
 
             <div class="select-btn" onclick="startChecklist('agente')">
-                <span class="btn-badge">Global / Multilatina</span>
+                <span class="btn-badge">Global</span>
                 <h3>Cadastro Agente Global</h3>
-                <p>Validação em órgãos internacionais, parâmetro de moedas/CNW no CW, replicação detalhada por filial e produtos no NetShip.</p>
+                <p>Validação em órgãos internacionais, parâmetro de moedas/CNW no CW, replicação detalhada por filial e produtos no Netship.</p>
             </div>
         </div>
     </div>
@@ -404,46 +404,46 @@
     const dataAgenteGlobal = [
         ["1. Validação Global Externa", "Validação do Registro Corporativo", "Junta / Governo Origem", "Consultar portal governamental de origem para confirmar Razão Social oficial e pontuação jurídica exata (ex.: S.A., Ltd., Inc., GmbH)."],
         ["1. Validação Global Externa", "Validação Fiscal / Tax ID", "Órgão Fiscal Local", "Validar documento fiscal oficial (NIF/VAT/Tax ID) no portal do país de origem."],
-        ["1. Validação Global Externa", "Verificação UN/LOCODE / Alo Code", "ONU / UN-LOCODE", "Validar o Alo Code preferencialmente pela base oficial da UNECE/ONU (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>)."],
+        ["1. Validação Global Externa", "Verificação UN/LOCODE / UNLOCO", "ONU / UN-LOCODE", "Validar o UNLOCO preferencialmente pela base oficial da UNECE/ONU (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>)."],
         ["1. Validação Global Externa", "Formatação de Canais Web", "Geral", "Garantir e-mails e website integralmente em letras MINÚSCULAS. Telefones com DDI (+)."],
         ["2. CargoWise (CW) - Matriz", "Organization Type", "CargoWise (CW)", "Flegar as funções: Sales, Foreign Agent, Receivables (AR) e Payables (AP)."],
-        ["2. CargoWise (CW) - Matriz", "Configuração Módulo AR", "CargoWise (CW)", "Definir Account Group como 'CNW' e Tax Details como 'Não'."],
-        ["2. CargoWise (CW) - Matriz", "Configuração Módulo AP", "CargoWise (CW)", "Definir Account Group como 'CNW' e Tax Details como 'Não'."],
+        ["2. CargoWise (CW) - Matriz", "Configuração Módulo AR", "CargoWise (CW)", "Receivables (AR) - Definir Account Group como 'CNW' e Tax Details como 'Não'."],
+        ["2. CargoWise (CW) - Matriz", "Configuração Módulo AP", "CargoWise (CW)", "Payables (AP) - Definir Account Group como 'CNW' e Tax Details como 'Não'."],
         ["2. CargoWise (CW) - Matriz", "Limpeza de Moeda (Currency)", "CargoWise (CW)", "Deletar qualquer informação no campo Currency (CUR) nos módulos AR/AP. DEIXAR EM BRANCO."],
         ["2. CargoWise (CW) - Matriz", "Estrutura Bancária", "CargoWise (CW)", "Diferenciar Account Number e Branch Code. No Branch, inserir apenas a numeração oficial da agência."],
         
         // REPLICAÇÃO CARGOWISE DESMEMBRADA POR FILIAL
-        ["3. Replicação CargoWise (CW)", "3.1 Argentina", "CargoWise (CW)", "Acessar AR/AP/BOS. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
-        ["3. Replicação CargoWise (CW)", "3.2 Bolívia", "CargoWise (CW)", "Acessar AR/AP/BOS. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
-        ["3. Replicação CargoWise (CW)", "3.3 Brasil", "CargoWise (CW)", "Validar parâmetros AR/AP/BOS locais cadastrados."],
-        ["3. Replicação CargoWise (CW)", "3.4 Chile", "CargoWise (CW)", "Acessar AR/AP/BOS. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
-        ["3. Replicação CargoWise (CW)", "3.5 Colômbia", "CargoWise (CW)", "Acessar AR/AP/BOS. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
-        ["3. Replicação CargoWise (CW)", "3.6 Equador", "CargoWise (CW)", "Acessar AR/AP/BOS. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
+        ["3. Replicação CargoWise (CW)", "3.1 Argentina", "CargoWise (CW)", "Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
+        ["3. Replicação CargoWise (CW)", "3.2 Bolívia", "CargoWise (CW)", "Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
+        ["3. Replicação CargoWise (CW)", "3.3 Brasil", "CargoWise (CW)", "Validar parâmetros AR/AP locais cadastrados."],
+        ["3. Replicação CargoWise (CW)", "3.4 Chile", "CargoWise (CW)", "Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
+        ["3. Replicação CargoWise (CW)", "3.5 Colômbia", "CargoWise (CW)", "Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
+        ["3. Replicação CargoWise (CW)", "3.6 Equador", "CargoWise (CW)", "Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
         ["3. Replicação CargoWise (CW)", "3.7 Estados Unidos (EUA)", "CargoWise (CW)", "Manter Account Group 'CNW' e garantir campo Moeda VAZIO (sem alterar Tax Details)."],
-        ["3. Replicação CargoWise (CW)", "3.8 México", "CargoWise (CW)", "Acessar AR/AP/BOS. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
-        ["3. Replicação CargoWise (CW)", "3.9 Paraguai", "CargoWise (CW)", "Acessar AR/AP/BOS. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
-        ["3. Replicação CargoWise (CW)", "3.10 Peru", "CargoWise (CW)", "Acessar AR/AP/BOS. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
-        ["3. Replicação CargoWise (CW)", "3.11 Uruguai", "CargoWise (CW)", "Acessar AR/AP/BOS. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
-        ["3. Replicação CargoWise (CW)", "3.12 LEYDE MARINA", "CargoWise (CW)", "Acessar AR/AP/BOS. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
+        ["3. Replicação CargoWise (CW)", "3.8 México", "CargoWise (CW)", "Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
+        ["3. Replicação CargoWise (CW)", "3.9 Paraguai", "CargoWise (CW)", "Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
+        ["3. Replicação CargoWise (CW)", "3.10 Peru", "CargoWise (CW)", "Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
+        ["3. Replicação CargoWise (CW)", "3.11 Uruguai", "CargoWise (CW)", "Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
+        ["3. Replicação CargoWise (CW)", "3.12 LADY MARINA", "CargoWise (CW)", "Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO."],
 
-        ["4. NetShip - Base & Produtos", "Higienização de Texto", "NetShip", "Remover rigorosamente espaços em branco no início e final de todas as linhas e campos."],
-        ["4. NetShip - Base & Produtos", "Réplica do Endereço & Tax ID", "NetShip", "Replicar exato endereço do CW. Preencher Tax ID local no campo correto. Não incluir dados exclusivos do Brasil (ex: SISCARGA)."],
-        ["4. NetShip - Base & Produtos", "Liberação de Produtos", "NetShip", "Marcar obrigatoriamente todos os produtos: FCL IMPO, FCL EXPO, LCL IMPO, LCL EXPO e Aéreo."],
-        ["4. NetShip - Base & Produtos", "Consolidação Bancária", "NetShip", "Agrupar dados no mesmo banco sem duplicar linhas. Linha 1: Nome Banco | Linha 2: SWIFT/BIC | Linhas 3+: Contas/IBANs."],
-        ["4. NetShip - Base & Produtos", "Padronização de Contatos", "NetShip", "Na aba da carta, sanitizar espaços, preencher NOME EM MAIÚSCULAS e definir Job Title profissional específico."],
+        ["4. Netship - Base & Produtos", "Higienização de Texto", "Netship", "Remover rigorosamente espaços em branco no início e final de todas as linhas e campos."],
+        ["4. Netship - Base & Produtos", "Réplica do Endereço & Tax ID", "Netship", "Replicar exato endereço do CW. Preencher Tax ID local no campo correto. Não incluir dados exclusivos do Brasil (ex: SISCARGA)."],
+        ["4. Netship - Base & Produtos", "Liberação de Produtos", "Netship", "Marcar obrigatoriamente todos os produtos: FCL IMPO, FCL EXPO, LCL IMPO, LCL EXPO e AIR."],
+        ["4. Netship - Base & Produtos", "Consolidação Bancária", "Netship", "Agrupar dados no mesmo banco sem duplicar linhas. Linha 1: Nome Banco | Linha 2: SWIFT/BIC | Linhas 3+: Contas/IBANs."],
+        ["4. Netship - Base & Produtos", "Padronização de Contatos", "Netship", "Contatos de e-mail: Sanitizar espaços, preencher NOME EM MAIÚSCULAS e definir Job Title profissional específico."],
 
-        // REPLICAÇÃO NETSHIP DESMEMBRADA POR FILIAL
-        ["5. NetShip - Replicação por País", "5.1 Argentina", "NetShip", "Acessar NetShip Argentina e replicar a exata formatação padronizada."],
-        ["5. NetShip - Replicação por País", "5.2 Bolívia", "NetShip", "Acessar NetShip Bolívia e replicar a exata formatação padronizada."],
-        ["5. NetShip - Replicação por País", "5.3 Brasil", "NetShip", "Validar cadastro-base NetShip Brasil (inclui SISCARGA se aplicável)."],
-        ["5. NetShip - Replicação por País", "5.4 Chile", "NetShip", "Acessar NetShip Chile e replicar a exata formatação padronizada."],
-        ["5. NetShip - Replicação por País", "5.5 Colômbia", "NetShip", "Acessar NetShip Colômbia e replicar a exata formatação padronizada."],
-        ["5. NetShip - Replicação por País", "5.6 Equador", "NetShip", "Acessar NetShip Equador e replicar a exata formatação padronizada."],
-        ["5. NetShip - Replicação por País", "5.7 México", "NetShip", "Acessar NetShip México e replicar a exata formatação padronizada."],
-        ["5. NetShip - Replicação por País", "5.8 Paraguai", "NetShip", "Acessar NetShip Paraguai e replicar a exata formatação padronizada."],
-        ["5. NetShip - Replicação por País", "5.9 Peru", "NetShip", "Acessar NetShip Peru e replicar a exata formatação padronizada."],
-        ["5. NetShip - Replicação por País", "5.10 Uruguai", "NetShip", "Acessar NetShip Uruguai e replicar a exata formatação padronizada."],
-        ["5. NetShip - Replicação por País", "5.11 LEYDE MARINA", "NetShip", "Acessar NetShip Leyde Marina e replicar a exata formatação padronizada."]
+        // REPLICAÇÃO Netship DESMEMBRADA POR FILIAL
+        ["5. Netship - Replicação por País", "5.1 Argentina", "Netship", "Acessar Netship Argentina e replicar a exata formatação padronizada."],
+        ["5. Netship - Replicação por País", "5.2 Bolívia", "Netship", "Acessar Netship Bolívia e replicar a exata formatação padronizada."],
+        ["5. Netship - Replicação por País", "5.3 Brasil", "Netship", "Validar cadastro-base Netship Brasil (inclui SISCARGA se aplicável)."],
+        ["5. Netship - Replicação por País", "5.4 Chile", "Netship", "Acessar Netship Chile e replicar a exata formatação padronizada."],
+        ["5. Netship - Replicação por País", "5.5 Colômbia", "Netship", "Acessar Netship Colômbia e replicar a exata formatação padronizada."],
+        ["5. Netship - Replicação por País", "5.6 Equador", "Netship", "Acessar Netship Equador e replicar a exata formatação padronizada."],
+        ["5. Netship - Replicação por País", "5.7 México", "Netship", "Acessar Netship México e replicar a exata formatação padronizada."],
+        ["5. Netship - Replicação por País", "5.8 Paraguai", "Netship", "Acessar Netship Paraguai e replicar a exata formatação padronizada."],
+        ["5. Netship - Replicação por País", "5.9 Peru", "Netship", "Acessar Netship Peru e replicar a exata formatação padronizada."],
+        ["5. Netship - Replicação por País", "5.10 Uruguai", "Netship", "Acessar Netship Uruguai e replicar a exata formatação padronizada."],
+        ["5. Netship - Replicação por País", "5.11 LADY MARINA", "Netship", "Acessar Netship Lady Marina e replicar a exata formatação padronizada."]
     ];
 
     let currentType = '';
@@ -468,7 +468,7 @@
             subtitle = 'Processo ativo: Cadastro Simples';
         } else if (type === 'agente') {
             data = dataAgenteGlobal;
-            title = 'Checklist: Cadastro Global de Agentes (CargoWise & NetShip)';
+            title = 'Checklist: Cadastro Global de Agentes (CargoWise & Netship)';
             subtitle = 'Processo ativo: Agente Global';
         }
         
