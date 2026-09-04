@@ -263,6 +263,10 @@
             border-radius: 4px;
             font-size: 8.5pt;
         }
+        a {
+            color: #2980B9;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -355,9 +359,9 @@
         ["1. Busca de Duplicidades", "Análise de Sufixo do Código CW", "Sistema / CW", "Código CW com número no final (1, 2, 3...) indica forte evidência de inconsistência. Buscar a raiz sem o número para investigar."],
         ["1. Busca de Duplicidades", "Tratamento de Merge / Recálculo CW", "Sistema / CW", "Se eliminar o cadastro sem numeração e mantiver o sufixado (ex: final 1): recorte a Razão Social, digite qualquer tecla, pressione 'Tab' para recalcular o CW original sem número e cole a Razão Social oficial."],
         ["1. Busca de Duplicidades", "Reorganização de Sequência CW", "Sistema / CW", "Caso haja múltiplos cadastros válidos (sem duplicidade real), reorganizar as numerações sequencialmente (sem sufixo no principal, e sufixos 1, 2, 3 nos demais)."],
-        ["2. Validação Cadastral Externa", "Consulta CNPJ / Razão Social", "Receita Federal", "Confirmar se Razão Social está idêntica à consulta oficial no site da Receita Federal."],
+        ["2. Validação Cadastral Externa", "Consulta CNPJ / Razão Social", "Receita Federal", "Confirmar se Razão Social está idêntica à consulta oficial no <a href='https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/' target='_blank'>site da Receita Federal</a>."],
         ["2. Validação Cadastral Externa", "Validação Visual e Endereço", "CROSS", "Garantir pontuação, vírgulas, Address 1 e Address 2 exatamente iguais ao CROSS."],
-        ["2. Validação Cadastral Externa", "Validação Oficial UN/LOCODE", "UNECE / Maya", "Confirmar o UN/LOCODE correto do município. Em caso de dúvidas ou múltiplas opções de cidade, validar no site oficial da UNECE."],
+        ["2. Validação Cadastral Externa", "Validação Oficial UN/LOCODE", "UNECE / Maya", "Confirmar o UN/LOCODE correto do município. Em caso de dúvidas ou múltiplas opções de cidade, validar no site oficial da UNECE (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>)."],
         ["2. Validação Cadastral Externa", "Análise Financeira", "Portal Interno / Serasa", "Validar se o padrão financeiro e limite estão aprovados."],
         ["2. Validação Cadastral Externa", "Mapeamento Comercial & Filial", "CROSS", "Identificar os comerciais que atendem a conta e a filial responsável."],
         ["3. Configuração no System / Control-Brent", "Filial Atendente", "Control-Brent", "Preencher o código da filial correta que atende a conta."],
@@ -375,8 +379,8 @@
         ["8. Automações de Embarque e Fatura", "Formato do E-mail", "Automações", "Configurar formato do envio das automações como HTMF / HTML."],
         ["8. Automações de Embarque e Fatura", "Inclusão de E-mail AR", "Contas a Receber", "Incluir o e-mail 'ardr@fncraft.com' para avisos de fatura no Contas a Receber."],
         ["8. Automações de Embarque e Fatura", "Contatos por Direção (EXPO/IMPO)", "Contas a Receber / Automações", "Incluir os e-mails operacionais específicos para cada direção de embarque: EXPO (Exportação) e IMPO (Importação)."],
-        ["8. Automações de Embarque e Fatura", "Automações Operacionais Aéreo (LOC)", "Automações / Aéreo", "Para automações de avisos operacionais (LOC) dos produtos aéreos, incluir contatos específicos."],
-        ["8. Automações de Embarque e Fatura", "Vincular Produtos Específicos", "Automações", "Configurar automações estritamente para seus produtos específicos, nunca liberando para todos os produtos/modais."],
+        ["8. Automações de Embarque e Fatura", "Automações Operacionais Aéreo (LOC)", "Automações / Aéreo", "Para automações de avisos operacionais (LOC) dos produtos aéreos, incluir contatos específicos: tracking.airimpo@craftmulti.com para AIR IMPO e tracking.airexpo@craftmulti.com para AIR EXPO."],
+        ["8. Automações de Embarque e Fatura", "Vincular Produtos Específicos", "Automações", "Configurar automações estritamente para seus produtos específicos (ex: AIR IMPO, AIR EXPO, FCL IMPO, FCL EXPO), nunca liberando para todos os produtos/modais."],
         ["8. Automações de Embarque e Fatura", "Job Title em Automações", "Automações", "Deixar o Job Title DEIXAR EM BRANCO para fácil identificação visual."]
     ];
 
@@ -388,10 +392,10 @@
         ["1. Busca de Duplicidades", "Análise de Sufixo do Código CW", "Sistema / CW", "Código CW com número no final (1, 2, 3...) indica forte evidência de inconsistência. Buscar a raiz sem o número para investigar."],
         ["1. Busca de Duplicidades", "Tratamento de Merge / Recálculo CW", "Sistema / CW", "Se eliminar o cadastro sem numeração e mantiver o sufixado (ex: final 1): recorte a Razão Social, digite qualquer tecla, pressione 'Tab' para recalcular o CW original sem número e cole a Razão Social oficial."],
         ["1. Busca de Duplicidades", "Reorganização de Sequência CW", "Sistema / CW", "Caso haja múltiplos cadastros válidos (sem duplicidade real), reorganizar as numerações sequencialmente."],
-        ["2. Validação Externa & Dados", "Consulta Receita Federal", "Receita Federal", "Confirmar Razão Social e dados oficiais no site da Receita Federal."],
+        ["2. Validação Externa & Dados", "Consulta Receita Federal", "Receita Federal", "Confirmar Razão Social e dados oficiais no <a href='https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/' target='_blank'>site da Receita Federal</a>."],
         ["2. Validação Externa & Dados", "Validação no CROSS", "CROSS", "Validar nome idêntico (incluindo pontos, vírgulas e abreviações) no CROSS / Pessoas - Abertura."],
         ["2. Validação Externa & Dados", "Formatação de Endereço", "CROSS / Receita", "Preencher Address 1 (Rua/Nº) e Address 2 (Apto/Bloco/Complemento)."],
-        ["2. Validação Externa & Dados", "Validação Oficial UN/LOCODE", "UNECE / Maya", "Confirmar o UN/LOCODE correto do município."],
+        ["2. Validação Externa & Dados", "Validação Oficial UN/LOCODE", "UNECE / Maya", "Confirmar o UN/LOCODE correto do município. Em caso de dúvidas ou múltiplas opções de cidade, validar no site oficial da UNECE (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>)."],
         ["3. Regras de Sistema", "Control-Brent (Filial)", "Control-Brent", "DEIXAR EM BRANCO quando for Consignee (sem controle de filial)."],
         ["3. Regras de Sistema", "Inclusão de CNPJ", "Módulo Principal", "Preencher o campo CNPJ completo e validado."],
         ["3. Regras de Sistema", "Organization Type", "Módulo Principal", "Marcar exatamente: Shipper, Consignee e Sales."]
@@ -400,7 +404,7 @@
     const dataAgenteGlobal = [
         ["1. Validação Global Externa", "Validação do Registro Corporativo", "Junta / Governo Origem", "Consultar portal governamental de origem para confirmar Razão Social oficial e pontuação jurídica exata (ex.: S.A., Ltd., Inc., GmbH)."],
         ["1. Validação Global Externa", "Validação Fiscal / Tax ID", "Órgão Fiscal Local", "Validar documento fiscal oficial (NIF/VAT/Tax ID) no portal do país de origem."],
-        ["1. Validação Global Externa", "Verificação UN/LOCODE / Alo Code", "ONU / UN-LOCODE", "Validar o Alo Code preferencialmente pela base oficial da ONU."],
+        ["1. Validação Global Externa", "Verificação UN/LOCODE / Alo Code", "ONU / UN-LOCODE", "Validar o Alo Code preferencialmente pela base oficial da UNECE/ONU (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>)."],
         ["1. Validação Global Externa", "Formatação de Canais Web", "Geral", "Garantir e-mails e website integralmente em letras MINÚSCULAS. Telefones com DDI (+)."],
         ["2. CargoWise (CW) - Matriz", "Organization Type", "CargoWise (CW)", "Flegar as funções: Sales, Foreign Agent, Receivables (AR) e Payables (AP)."],
         ["2. CargoWise (CW) - Matriz", "Configuração Módulo AR", "CargoWise (CW)", "Definir Account Group como 'CNW' e Tax Details como 'Não'."],
@@ -528,7 +532,7 @@
         const userName = document.getElementById('user-name').value || 'Operador_Nao_Informado';
         const now = new Date().toLocaleString('pt-BR');
 
-        let csvContent = "\uFEFF"; // BOM para acentuação correta no Excel
+        let csvContent = "\uFEFF";
         csvContent += `RELATORIO DE CONFERENCIA DE CADASTRO - CRAFT\n`;
         csvContent += `Empresa/Razao Social;${companyName}\n`;
         csvContent += `Identificador (Code/Tax ID);${companyId}\n`;
@@ -544,6 +548,7 @@
             const groupText = row.children[1].querySelector('strong').innerText.replace(/;/g, ',');
             const itemText = row.children[1].querySelector('span').innerText.replace(/;/g, ',');
             const tagText = row.children[2].querySelector('.tag').innerText.replace(/;/g, ',');
+            // Limpa as tags HTML do link para exportar apenas o texto limpo no CSV
             const ruleText = row.children[3].innerText.replace(/;/g, ',');
             const obsText = row.children[4].querySelector('input').value.replace(/;/g, ',');
 
