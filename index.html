@@ -365,6 +365,12 @@ function scheduleSave() {
     saveTimeout = setTimeout(saveState, 300);
 }
 
+function isStateMeaningful(companies, rows) {
+    const hasCompanyData = companies.some(c => (c.name || '').trim() || (c.id || '').trim() || (c.user || '').trim());
+    const hasRowProgress = Object.values(rows).some(r => r.status !== 'pendente' || (r.obs || '').trim());
+    return hasCompanyData || hasRowProgress;
+}
+
 function saveState() {
     if (!currentType) return;
     const companies = [];
@@ -385,6 +391,14 @@ function saveState() {
             obs: obs ? obs.value : ''
         };
     });
+
+    if (!isStateMeaningful(companies, rows)) {
+        try { localStorage.removeItem(storageKey(currentType)); } catch (e) {}
+        const el = document.getElementById('saved-indicator');
+        if (el) el.innerText = '';
+        hasUnexportedProgress = false;
+        return;
+    }
 
     const state = { type: currentType, companies, rows, savedAt: new Date().toISOString() };
     try {
@@ -411,11 +425,18 @@ function peekSavedState(type) {
         return null;
     }
     if (!raw) return null;
+    let state;
     try {
-        return JSON.parse(raw);
+        state = JSON.parse(raw);
     } catch (e) {
         return null;
     }
+    if (!state) return null;
+    if (!isStateMeaningful(state.companies || [], state.rows || {})) {
+        try { localStorage.removeItem(storageKey(type)); } catch (e) {}
+        return null;
+    }
+    return state;
 }
 
 function summarizeSavedState(state) {
@@ -565,12 +586,10 @@ function startChecklist(type, isRestoring) {
     updateProgress();
     if (!isRestoring) {
         hasUnexportedProgress = false;
-        saveState();
     }
 }
 
 function showSelection() {
-    if (currentType) saveState();
     document.getElementById('selection-screen').style.display = 'block';
     document.getElementById('checklist-view').style.display = 'none';
     document.getElementById('progress-box').style.display = 'none';
