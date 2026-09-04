@@ -237,14 +237,18 @@ a { color: var(--brand); text-decoration: underline; }
                 <button class="expand-btn btn btn-ghost" onclick="toggleAllSections(false)">Recolher Tudo</button>
                 <input type="text" class="search-box" id="search-box" placeholder="Buscar item ou instrução..." oninput="filterRows()">
             </div>
-            <button class="export-btn btn btn-success" onclick="exportToCSV()">Exportar Relatório (CSV)</button>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span id="saved-indicator" style="font-size:7.5pt; color:#9AA6B0;"></span>
+                <button class="btn btn-ghost" onclick="clearSavedState()" title="Apaga o progresso salvo neste navegador">Limpar progresso salvo</button>
+                <button class="export-btn btn btn-success" onclick="exportToCSV()">Exportar Relatório (CSV)</button>
+            </div>
         </div>
 
         <div id="active-checklist-title" style="font-size:13pt; font-weight:bold; color:#1F4E78; margin-bottom:12px;"></div>
         <div id="sections-container"></div>
     </div>
 
-    <div class="footer-note">Este arquivo não salva dados automaticamente entre sessões. Exporte o relatório em CSV antes de fechar ou trocar de cadastro.</div>
+    <div class="footer-note">O progresso é salvo automaticamente neste navegador enquanto você preenche. Ele não sincroniza entre computadores nem sobrevive à limpeza do cache — exporte o relatório em CSV para guardar uma cópia definitiva.</div>
 </div>
 
 <script>
@@ -342,6 +346,133 @@ const dataAgenteGlobal = [
 
 let currentType = '';
 let hasUnexportedProgress = false;
+const STORAGE_KEY = 'craft_checklist_cadastro_v1';
+let saveTimeout = null;
+
+function scheduleSave() {
+    hasUnexportedProgress = true;
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(saveState, 300);
+}
+
+function saveState() {
+    const companies = [];
+    document.querySelectorAll('.company-row').forEach(row => {
+        companies.push({
+            name: row.querySelector('.comp-name').value,
+            id: row.querySelector('.comp-id').value,
+            user: row.querySelector('.user-name').value
+        });
+    });
+
+    const rows = {};
+    document.querySelectorAll('#sections-container tr[id^="row-"]').forEach(row => {
+        const select = row.querySelector('.status-select');
+        const obs = row.querySelector('.obs-textarea');
+        rows[row.id] = {
+            status: select ? select.value : 'pendente',
+            obs: obs ? obs.value : ''
+        };
+    });
+
+    const state = { currentType, companies, rows, savedAt: new Date().toISOString() };
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        updateSavedIndicator(state.savedAt);
+    } catch (e) {
+        console.warn('Não foi possível salvar automaticamente:', e);
+    }
+}
+
+function updateSavedIndicator(isoDate) {
+    const el = document.getElementById('saved-indicator');
+    if (!el) return;
+    const d = new Date(isoDate);
+    el.innerText = `Salvo automaticamente às ${d.toLocaleTimeString('pt-BR')}`;
+}
+
+function clearSavedState() {
+    const ok = confirm('Isso vai apagar todo o progresso salvo neste navegador. Deseja continuar?');
+    if (!ok) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+}
+
+function loadState() {
+    let raw;
+    try {
+        raw = localStorage.getItem(STORAGE_KEY);
+    } catch (e) {
+        return;
+    }
+    if (!raw) return;
+
+    let state;
+    try {
+        state = JSON.parse(raw);
+    } catch (e) {
+        return;
+    }
+    if (!state || !state.currentType) return;
+
+    const savedDate = state.savedAt ? new Date(state.savedAt).toLocaleString('pt-BR') : 'data desconhecida';
+    const ok = confirm(`Encontramos um progresso salvo neste navegador (${savedDate}). Deseja restaurar de onde parou?`);
+    if (!ok) {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+    }
+
+    const container = document.getElementById('company-rows-container');
+    container.innerHTML = '';
+    (state.companies || [{}]).forEach((c, i) => {
+        if (i === 0) {
+            const row = document.createElement('div');
+            row.className = 'company-row';
+            row.innerHTML = `
+                <div class="info-group">
+                    <label>Razão Social <span class="req">*</span></label>
+                    <input type="text" class="comp-name" placeholder="Ex: CRAFT MULTIMODAL LTDA">
+                </div>
+                <div class="info-group">
+                    <label>Identificador (Código CW / Tax ID / RFC / VAT / NIT) <span class="req">*</span></label>
+                    <input type="text" class="comp-id" placeholder="Ex: CRAFT01 / 12.345.678/0001-90">
+                </div>
+                <div class="info-group">
+                    <label>Operador Responsável <span class="req">*</span></label>
+                    <input type="text" class="user-name" placeholder="Seu nome">
+                </div>
+                <div class="row-spacer"></div>
+            `;
+            container.appendChild(row);
+        } else {
+            addCompanyRow();
+        }
+        const rowEl = container.children[i];
+        rowEl.querySelector('.comp-name').value = c.name || '';
+        rowEl.querySelector('.comp-id').value = c.id || '';
+        rowEl.querySelector('.user-name').value = c.user || '';
+    });
+
+    startChecklist(state.currentType, true);
+
+    Object.keys(state.rows || {}).forEach(rowId => {
+        const row = document.getElementById(rowId);
+        if (!row) return;
+        const select = row.querySelector('.status-select');
+        const obs = row.querySelector('.obs-textarea');
+        const saved = state.rows[rowId];
+        if (select && saved.status) {
+            select.value = saved.status;
+            onStatusChangeInternal(rowId, select);
+        }
+        if (obs && saved.obs) obs.value = saved.obs;
+    });
+
+    updateProgress();
+    document.querySelectorAll('.section-block').forEach((b, idx) => updateSectionCount(idx));
+    if (state.savedAt) updateSavedIndicator(state.savedAt);
+    hasUnexportedProgress = false;
+}
 
 function addCompanyRow() {
     const container = document.getElementById('company-rows-container');
@@ -354,14 +485,16 @@ function addCompanyRow() {
         <button class="remove-row-btn btn-danger-icon" onclick="removeCompanyRow(this)" title="Remover empresa">✕</button>
     `;
     container.appendChild(newRow);
+    scheduleSave();
 }
 
 function removeCompanyRow(btn) {
     const container = document.getElementById('company-rows-container');
     if (container.children.length > 1) btn.parentElement.remove();
+    scheduleSave();
 }
 
-function startChecklist(type) {
+function startChecklist(type, isRestoring) {
     currentType = type;
     document.getElementById('selection-screen').style.display = 'none';
     document.getElementById('checklist-view').style.display = 'block';
@@ -388,14 +521,18 @@ function startChecklist(type) {
 
     renderSections(data);
     updateProgress();
-    hasUnexportedProgress = false;
+    if (!isRestoring) {
+        hasUnexportedProgress = false;
+        saveState();
+    }
 }
 
 function showSelection() {
     if (hasUnexportedProgress) {
-        const ok = confirm('Você tem progresso não exportado neste checklist. Deseja realmente trocar de tipo de cadastro? O progresso atual será perdido.');
+        const ok = confirm('Você tem progresso não exportado neste checklist. Deseja realmente trocar de tipo de cadastro? O progresso salvo automaticamente também será apagado.');
         if (!ok) return;
     }
+    localStorage.removeItem(STORAGE_KEY);
     document.getElementById('selection-screen').style.display = 'block';
     document.getElementById('checklist-view').style.display = 'none';
     document.getElementById('progress-box').style.display = 'none';
@@ -493,12 +630,11 @@ function toggleAllSections(expand) {
     });
 }
 
-function onStatusChange(rowId, selectEl) {
+function onStatusChangeInternal(rowId, selectEl) {
     const row = document.getElementById(rowId);
     const status = selectEl.value;
     row.className = 'status-' + status;
     selectEl.className = 'status-select ' + (status === 'nao-aplica' ? 'nao-aplica' : status);
-    hasUnexportedProgress = true;
 
     const hint = document.getElementById(`hint-${rowId}`);
     const obs = row.querySelector('.obs-textarea');
@@ -512,11 +648,15 @@ function onStatusChange(rowId, selectEl) {
 
     const sectionIdx = rowId.split('-')[1];
     updateSectionCount(sectionIdx);
+}
+
+function onStatusChange(rowId, selectEl) {
+    onStatusChangeInternal(rowId, selectEl);
     updateProgress();
+    scheduleSave();
 }
 
 function onObsInput(rowId, textareaEl) {
-    hasUnexportedProgress = true;
     const row = document.getElementById(rowId);
     const select = row.querySelector('.status-select');
     const hint = document.getElementById(`hint-${rowId}`);
@@ -527,6 +667,7 @@ function onObsInput(rowId, textareaEl) {
         hint.classList.remove('show');
         textareaEl.classList.remove('required-empty');
     }
+    scheduleSave();
 }
 
 function setSectionStatus(gIdx, status) {
@@ -649,6 +790,14 @@ window.addEventListener('beforeunload', function (e) {
         e.returnValue = '';
     }
 });
+
+document.addEventListener('input', function (e) {
+    if (e.target.classList.contains('comp-name') || e.target.classList.contains('comp-id') || e.target.classList.contains('user-name')) {
+        scheduleSave();
+    }
+});
+
+window.addEventListener('DOMContentLoaded', loadState);
 </script>
 </body>
 </html>
