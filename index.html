@@ -108,6 +108,10 @@ body {
     display: inline-block; background: var(--brand-light); color: var(--brand); font-size: 7.5pt; font-weight: 600;
     padding: 3px 9px; border-radius: 12px; margin-bottom: 8px; border: 1px solid var(--brand-border);
 }
+.saved-badge {
+    display: inline-block; margin-top: 10px; font-size: 7.5pt; font-weight: 600; color: var(--status-concluido);
+    background: var(--status-concluido-bg); padding: 4px 9px; border-radius: 12px;
+}
 
 .checklist-view { display: none; }
 .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
@@ -209,22 +213,25 @@ a { color: var(--brand); text-decoration: underline; }
 
     <div class="selection-screen" id="selection-screen">
         <h2>Qual tipo de cadastro você vai executar agora?</h2>
-        <p>Escolha uma das opções abaixo para carregar o checklist correspondente e acompanhar seu progresso de validação.</p>
+        <p>Escolha uma das opções abaixo para carregar o checklist correspondente e acompanhar seu progresso de validação. Cada tipo mantém seu próprio progresso salvo, então você pode alternar entre eles livremente.</p>
         <div class="btn-grid">
             <div class="select-btn" onclick="startChecklist('cliente')">
                 <span class="btn-badge">Módulos AR/AP Completo</span>
                 <h3>Cadastro Completo de Cliente</h3>
                 <p>Validação de duplicidades/CNPJ, consultas externas, parametrizações financeiras (AR/AP), equipe comercial e automações por produto.</p>
+                <div id="badge-cliente"></div>
             </div>
             <div class="select-btn" onclick="startChecklist('simples')">
                 <span class="btn-badge">Shipper / Consignee / Notify</span>
                 <h3>Cadastro Simples</h3>
                 <p>Validação de duplicidades por CNPJ/Nome, verificação de endereço CROSS, UN/LOCODE, CNPJ e tipo de organização no sistema.</p>
+                <div id="badge-simples"></div>
             </div>
             <div class="select-btn" onclick="startChecklist('agente')">
                 <span class="btn-badge">Global</span>
                 <h3>Cadastro Agente Global</h3>
                 <p>Validação em órgãos internacionais, parâmetro de moedas/CNW no CW, replicação detalhada por filial e produtos no Netship.</p>
+                <div id="badge-agente"></div>
             </div>
         </div>
     </div>
@@ -248,7 +255,7 @@ a { color: var(--brand); text-decoration: underline; }
         <div id="sections-container"></div>
     </div>
 
-    <div class="footer-note">O progresso é salvo automaticamente neste navegador enquanto você preenche. Ele não sincroniza entre computadores nem sobrevive à limpeza do cache — exporte o relatório em CSV para guardar uma cópia definitiva.</div>
+    <div class="footer-note">Cada tipo de cadastro (Cliente, Simples, Agente) é salvo separadamente neste navegador. O progresso não sincroniza entre computadores nem sobrevive à limpeza do cache — exporte o relatório em CSV para guardar uma cópia definitiva.</div>
 </div>
 
 <script>
@@ -264,7 +271,7 @@ const dataCliente = [
 ["1. Busca de Duplicidades","Reorganização de Sequência CW","Sistema / CW","Caso haja múltiplos cadastros válidos (sem duplicidade real), reorganizar as numerações sequencialmente (sem sufixo no principal, e sufixos 1, 2, 3 nos demais).","padrao"],
 ["2. Validação Cadastral Externa","Consulta CNPJ / Razão Social","Receita Federal","Confirmar se Razão Social está idêntica à consulta oficial no <a href='https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/' target='_blank'>site da Receita Federal</a>.","critico"],
 ["2. Validação Cadastral Externa","Validação Visual e Endereço","CROSS","Garantir pontuação, vírgulas, Address 1 e Address 2 exatamente iguais ao CROSS.","padrao"],
-["2. Validação Cadastral Externa","Validação Oficial UN/LOCODE","UNECE","Confirmar o UN/LOCODE correto do município. Em caso de dúvidas ou múltiplas opções de cidade, validar no site oficial da UNECE (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>).","critico"],
+["2. Validação Cadastral Externa","Validação Oficial UN/LOCODE","UNECE / Maya","Confirmar o UN/LOCODE correto do município. Em caso de dúvidas ou múltiplas opções de cidade, validar no site oficial da UNECE (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>).","critico"],
 ["2. Validação Cadastral Externa","Validade da Análise Financeira (Brasil - CROSS)","CROSS","Para empresas brasileiras, o cadastro precisa entrar pelo CROSS. Se o cadastro já existir e for antigo, verificar se a análise financeira tem mais de 180 dias. Solicitação de Comercial/Inside Sales: se a análise estiver vencida (mais de 180 dias), pedir ao solicitante para refazer a análise financeira via CROSS antes de prosseguir. Solicitação de time de Operação: seguir direto com nova análise financeira via CROSS; se aprovada, prosseguir com o cadastro, se reprovada, inativar o cadastro.","critico"],
 ["2. Validação Cadastral Externa","Mapeamento Comercial & Filial","CROSS","Identificar os comerciais que atendem a conta e a filial responsável.","padrao"],
 ["3. Configuração no System / Control-Brent","Filial Atendente","Control-Brent","Preencher o código da filial correta que atende a conta.","critico"],
@@ -298,7 +305,7 @@ const dataSimples = [
 ["2. Validação Externa & Dados","Consulta Receita Federal","Receita Federal","Confirmar Razão Social e dados oficiais no <a href='https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/' target='_blank'>site da Receita Federal</a>.","critico"],
 ["2. Validação Externa & Dados","Validação no CROSS","CROSS","Validar nome idêntico (incluindo pontos, vírgulas e abreviações) no CROSS / Pessoas - Abertura.","padrao"],
 ["2. Validação Externa & Dados","Formatação de Endereço","CROSS / Receita","Preencher Address 1 (Rua/Nº) e Address 2 (Apto/Bloco/Complemento).","padrao"],
-["2. Validação Externa & Dados","Validação Oficial UN/LOCODE","UNECE","Confirmar o UN/LOCODE correto do município. Em caso de dúvidas ou múltiplas opções de cidade, validar no site oficial da UNECE (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>).","critico"],
+["2. Validação Externa & Dados","Validação Oficial UN/LOCODE","UNECE / Maya","Confirmar o UN/LOCODE correto do município. Em caso de dúvidas ou múltiplas opções de cidade, validar no site oficial da UNECE (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>).","critico"],
 ["3. Regras de Sistema","Control-Brent (Filial)","Control-Brent","DEIXAR EM BRANCO quando for Consignee (sem controle de filial).","padrao"],
 ["3. Regras de Sistema","Inclusão de CNPJ","Módulo Principal","Preencher o campo CNPJ completo e validado.","critico"],
 ["3. Regras de Sistema","Organization Type","Módulo Principal","Marcar exatamente: Shipper, Consignee e Sales.","critico"]
@@ -344,16 +351,22 @@ const dataAgenteGlobal = [
 
 let currentType = '';
 let hasUnexportedProgress = false;
-const STORAGE_KEY = 'craft_checklist_cadastro_v1';
+const STORAGE_PREFIX = 'craft_checklist_cadastro_v2_';
 let saveTimeout = null;
 
+function storageKey(type) {
+    return STORAGE_PREFIX + type;
+}
+
 function scheduleSave() {
+    if (!currentType) return;
     hasUnexportedProgress = true;
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(saveState, 300);
 }
 
 function saveState() {
+    if (!currentType) return;
     const companies = [];
     document.querySelectorAll('.company-row').forEach(row => {
         companies.push({
@@ -373,10 +386,11 @@ function saveState() {
         };
     });
 
-    const state = { currentType, companies, rows, savedAt: new Date().toISOString() };
+    const state = { type: currentType, companies, rows, savedAt: new Date().toISOString() };
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        localStorage.setItem(storageKey(currentType), JSON.stringify(state));
         updateSavedIndicator(state.savedAt);
+        hasUnexportedProgress = false;
     } catch (e) {
         console.warn('Não foi possível salvar automaticamente:', e);
     }
@@ -389,40 +403,41 @@ function updateSavedIndicator(isoDate) {
     el.innerText = `Salvo automaticamente às ${d.toLocaleTimeString('pt-BR')}`;
 }
 
+function peekSavedState(type) {
+    let raw;
+    try {
+        raw = localStorage.getItem(storageKey(type));
+    } catch (e) {
+        return null;
+    }
+    if (!raw) return null;
+    try {
+        return JSON.parse(raw);
+    } catch (e) {
+        return null;
+    }
+}
+
+function summarizeSavedState(state) {
+    const total = Object.keys(state.rows || {}).length;
+    const done = Object.values(state.rows || {}).filter(r => r.status === 'concluido' || r.status === 'nao-aplica').length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    const companyNames = (state.companies || []).map(c => c.name).filter(Boolean);
+    return { total, done, pct, companyNames };
+}
+
 function clearSavedState() {
-    const ok = confirm('Isso vai apagar todo o progresso salvo neste navegador. Deseja continuar?');
+    if (!currentType) return;
+    const ok = confirm('Isso vai apagar o progresso salvo deste tipo de cadastro neste navegador. Os demais tipos de cadastro salvos não são afetados. Deseja continuar?');
     if (!ok) return;
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(storageKey(currentType));
     location.reload();
 }
 
-function loadState() {
-    let raw;
-    try {
-        raw = localStorage.getItem(STORAGE_KEY);
-    } catch (e) {
-        return;
-    }
-    if (!raw) return;
-
-    let state;
-    try {
-        state = JSON.parse(raw);
-    } catch (e) {
-        return;
-    }
-    if (!state || !state.currentType) return;
-
-    const savedDate = state.savedAt ? new Date(state.savedAt).toLocaleString('pt-BR') : 'data desconhecida';
-    const ok = confirm(`Encontramos um progresso salvo neste navegador (${savedDate}). Deseja restaurar de onde parou?`);
-    if (!ok) {
-        localStorage.removeItem(STORAGE_KEY);
-        return;
-    }
-
+function applySavedState(state) {
     const container = document.getElementById('company-rows-container');
     container.innerHTML = '';
-    (state.companies || [{}]).forEach((c, i) => {
+    (state.companies && state.companies.length ? state.companies : [{}]).forEach((c, i) => {
         if (i === 0) {
             const row = document.createElement('div');
             row.className = 'company-row';
@@ -451,7 +466,7 @@ function loadState() {
         rowEl.querySelector('.user-name').value = c.user || '';
     });
 
-    startChecklist(state.currentType, true);
+    startChecklist(state.type, true);
 
     Object.keys(state.rows || {}).forEach(rowId => {
         const row = document.getElementById(rowId);
@@ -470,6 +485,21 @@ function loadState() {
     document.querySelectorAll('.section-block').forEach((b, idx) => updateSectionCount(idx));
     if (state.savedAt) updateSavedIndicator(state.savedAt);
     hasUnexportedProgress = false;
+}
+
+function renderSelectionBadges() {
+    [['cliente', 'badge-cliente'], ['simples', 'badge-simples'], ['agente', 'badge-agente']].forEach(([type, badgeId]) => {
+        const state = peekSavedState(type);
+        const badgeEl = document.getElementById(badgeId);
+        if (!badgeEl) return;
+        if (state) {
+            const s = summarizeSavedState(state);
+            const who = s.companyNames.length ? s.companyNames.join(', ') : 'sem nome preenchido';
+            badgeEl.innerHTML = `<span class="saved-badge">Em andamento: ${s.done}/${s.total} (${s.pct}%) — ${who}</span>`;
+        } else {
+            badgeEl.innerHTML = '';
+        }
+    });
 }
 
 function addCompanyRow() {
@@ -493,6 +523,20 @@ function removeCompanyRow(btn) {
 }
 
 function startChecklist(type, isRestoring) {
+    if (!isRestoring) {
+        const saved = peekSavedState(type);
+        if (saved) {
+            const s = summarizeSavedState(saved);
+            const savedDate = saved.savedAt ? new Date(saved.savedAt).toLocaleString('pt-BR') : 'data desconhecida';
+            const who = s.companyNames.length ? s.companyNames.join(', ') : 'sem nome preenchido';
+            const ok = confirm(`Existe um progresso salvo para este tipo de cadastro (${who}), de ${savedDate}, com ${s.done}/${s.total} itens (${s.pct}%). Deseja continuar de onde parou?\n\nOK = continuar\nCancelar = começar um cadastro novo (o progresso salvo anterior será substituído ao salvar)`);
+            if (ok) {
+                applySavedState(saved);
+                return;
+            }
+        }
+    }
+
     currentType = type;
     document.getElementById('selection-screen').style.display = 'none';
     document.getElementById('checklist-view').style.display = 'block';
@@ -526,17 +570,15 @@ function startChecklist(type, isRestoring) {
 }
 
 function showSelection() {
-    if (hasUnexportedProgress) {
-        const ok = confirm('Você tem progresso não exportado neste checklist. Deseja realmente trocar de tipo de cadastro? O progresso salvo automaticamente também será apagado.');
-        if (!ok) return;
-    }
-    localStorage.removeItem(STORAGE_KEY);
+    if (currentType) saveState();
     document.getElementById('selection-screen').style.display = 'block';
     document.getElementById('checklist-view').style.display = 'none';
     document.getElementById('progress-box').style.display = 'none';
     document.getElementById('main-title').innerText = 'Checklist Operacional de Cadastros';
     document.getElementById('main-subtitle').innerText = 'Selecione o tipo de processo de cadastro para iniciar';
+    currentType = '';
     hasUnexportedProgress = false;
+    renderSelectionBadges();
 }
 
 function renderSections(data) {
@@ -795,7 +837,7 @@ document.addEventListener('input', function (e) {
     }
 });
 
-window.addEventListener('DOMContentLoaded', loadState);
+window.addEventListener('DOMContentLoaded', renderSelectionBadges);
 </script>
 </body>
 </html>
