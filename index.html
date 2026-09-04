@@ -143,6 +143,11 @@
         .remove-row-btn:hover {
             background: #C0392B;
         }
+        .row-spacer {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
 
         /* Initial Selection Screen */
         .selection-screen {
@@ -368,6 +373,7 @@
                     <label>Operador Responsável</label>
                     <input type="text" class="user-name" placeholder="Seu nome">
                 </div>
+                <div class="row-spacer"></div>
             </div>
         </div>
         <button class="add-row-btn" onclick="addCompanyRow()">+ Adicionar Empresa</button>
