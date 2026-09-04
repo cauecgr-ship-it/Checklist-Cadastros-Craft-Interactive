@@ -334,8 +334,8 @@ function addCompanyRow() {
     const newRow = document.createElement('div');
     newRow.className = 'company-row';
     newRow.innerHTML = `
-        <div class="info-group"><input type="text" class="comp-name" placeholder="Ex: Panalpina Inc / Silva S.A."></div>
-        <div class="info-group"><input type="text" class="comp-id" placeholder="Ex: PANALP01 / 12.345.678/0001-90"></div>
+        <div class="info-group"><input type="text" class="comp-name" placeholder="Razão Social da empresa"></div>
+        <div class="info-group"><input type="text" class="comp-id" placeholder="Código CW / Tax ID / RFC / VAT / NIT"></div>
         <div class="info-group"><input type="text" class="user-name" placeholder="Seu nome"></div>
         <button class="remove-row-btn" onclick="removeCompanyRow(this)" title="Remover empresa">✕</button>
     `;
