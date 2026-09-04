@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist Operacional de Cadastros - Craft</title>
+<style>
+* { box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2C3E50;
+    margin: 0;
+    padding: 16px;
+    background-color: #F4F6F7;
+    font-size: 10pt;
+    line-height: 1.4;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 22px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.header {
+    background-color: #1F4E78;
+    color: white;
+    padding: 20px 24px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.header-text h1 { margin: 0; font-size: 16pt; text-transform: uppercase; letter-spacing: 0.5px; }
+.header-text p { margin: 6px 0 0 0; font-size: 9.5pt; color: #D6EAF8; }
+.progress-box { background: rgba(255,255,255,0.15); padding: 10px 16px; border-radius: 6px; min-width: 220px; display: none; }
+.progress-title { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; color: #EBF5FB; margin-bottom: 4px; }
+.progress-val { font-size: 14pt; font-weight: bold; }
+.progress-bar-track { height: 8px; background: rgba(255,255,255,0.25); border-radius: 4px; margin-top: 6px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: #27AE60; width: 0%; transition: width 0.3s ease; }
+
+.info-card { background: #EBF5FB; border: 1px solid #AED6F1; border-radius: 8px; padding: 16px 18px; margin-bottom: 18px; }
+.company-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 10px; }
+.company-row:last-child { margin-bottom: 0; }
+.info-group { flex: 1; min-width: 180px; }
+.info-group label { display: block; font-size: 8pt; font-weight: bold; color: #1F4E78; margin-bottom: 4px; text-transform: uppercase; }
+.info-group label .req { color: #C0392B; }
+.info-group input {
+    width: 100%; padding: 8px 10px; border: 1px solid #A9CCE3; border-radius: 5px;
+    font-size: 9pt; background-color: white; outline: none;
+}
+.info-group input:focus { border-color: #2980B9; }
+.info-group input.invalid { border-color: #C0392B; background: #FDEDEC; }
+.add-row-btn {
+    background: #2980B9; color: white; border: none; border-radius: 5px; padding: 8px 14px;
+    font-weight: bold; font-size: 8.5pt; cursor: pointer; margin-top: 10px;
+}
+.add-row-btn:hover { background: #1F4E78; }
+.remove-row-btn {
+    background: #E74C3C; color: white; border: none; border-radius: 5px; width: 32px; height: 32px;
+    font-weight: bold; font-size: 10pt; cursor: pointer; flex-shrink: 0;
+}
+.remove-row-btn:hover { background: #C0392B; }
+.row-spacer { width: 32px; height: 32px; flex-shrink: 0; }
+
+.selection-screen { text-align: center; padding: 25px 20px; }
+.selection-screen h2 { color: #1F4E78; font-size: 14pt; margin-bottom: 8px; }
+.selection-screen p { color: #7F8C8D; margin-bottom: 24px; font-size: 10pt; }
+.btn-grid { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
+.select-btn {
+    background: white; border: 2px solid #2980B9; border-radius: 8px; padding: 22px 26px; width: 310px;
+    cursor: pointer; transition: all 0.2s ease; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+.select-btn:hover { background: #EBF5FB; transform: translateY(-3px); border-color: #1F4E78; }
+.select-btn h3 { margin: 0 0 6px 0; color: #1F4E78; font-size: 11.5pt; }
+.select-btn p { margin: 0; font-size: 8.5pt; color: #566573; }
+.btn-badge {
+    display: inline-block; background: #2980B9; color: white; font-size: 7.5pt; font-weight: bold;
+    padding: 3px 8px; border-radius: 12px; margin-bottom: 8px; text-transform: uppercase;
+}
+
+.checklist-view { display: none; }
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+.top-bar-left { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.back-btn, .expand-btn {
+    background: #EAECEE; border: none; color: #2C3E50; padding: 8px 14px; border-radius: 5px;
+    font-weight: bold; cursor: pointer; font-size: 8.5pt;
+}
+.back-btn:hover, .expand-btn:hover { background: #D5D8DC; }
+.export-btn {
+    background: #27AE60; border: none; color: white; padding: 9px 16px; border-radius: 5px;
+    font-weight: bold; cursor: pointer; font-size: 8.5pt; display: flex; align-items: center; gap: 6px;
+}
+.export-btn:hover { background: #219150; }
+.search-box {
+    padding: 8px 12px; border: 1px solid #D5D8DC; border-radius: 5px; font-size: 8.5pt; min-width: 220px;
+}
+
+.section-block { margin-bottom: 14px; border: 1px solid #E5E8E8; border-radius: 8px; overflow: hidden; }
+.section-header {
+    background: #2C3E50; color: white; padding: 10px 14px; font-size: 10pt; font-weight: bold;
+    display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+    border-left: 5px solid #2980B9;
+}
+.section-header .section-actions { display: flex; gap: 6px; font-weight: normal; }
+.section-mini-btn {
+    background: rgba(255,255,255,0.15); border: none; color: white; padding: 4px 8px; border-radius: 4px;
+    font-size: 7.5pt; cursor: pointer;
+}
+.section-mini-btn:hover { background: rgba(255,255,255,0.3); }
+.section-count { font-weight: normal; font-size: 8pt; color: #AED6F1; margin-left: 8px; }
+.section-caret { transition: transform 0.2s ease; }
+.section-block.collapsed .section-caret { transform: rotate(-90deg); }
+.section-block.collapsed table { display: none; }
+
+table { width: 100%; border-collapse: collapse; background-color: white; }
+th {
+    background-color: #34495E; color: white; font-weight: 600; text-align: left; padding: 9px 12px;
+    font-size: 8.5pt; text-transform: uppercase;
+}
+td { padding: 9px 12px; border-bottom: 1px solid #EAECEE; vertical-align: top; font-size: 9pt; }
+tr:nth-child(even) td { background-color: #FAFAFA; }
+tr.status-concluido td { background-color: #EAFAF1 !important; }
+tr.status-concluido td.item-cell { text-decoration: line-through; color: #7F8C8D; }
+tr.status-nao-aplica td { background-color: #F4F6F6 !important; color: #95A5A6; }
+tr.status-nao-aplica td.item-cell { text-decoration: line-through; }
+tr.status-bloqueado td { background-color: #FDEDEC !important; }
+tr.hidden-row { display: none; }
+
+.status-select {
+    width: 100%; padding: 5px 6px; border-radius: 4px; border: 1px solid #D5D8DC; font-size: 8pt; font-weight: bold;
+}
+.status-select.pendente { background: #FEF9E7; color: #B7950B; }
+.status-select.concluido { background: #EAFAF1; color: #1E8449; }
+.status-select.nao-aplica { background: #F4F6F6; color: #7F8C8D; }
+.status-select.bloqueado { background: #FDEDEC; color: #C0392B; }
+
+.tag { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 7.5pt; font-weight: bold; background-color: #E1F5FE; color: #0288D1; }
+.tag-crit { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 7.5pt; font-weight: bold; margin-left: 4px; }
+.tag-crit.critico { background: #FDEDEC; color: #C0392B; }
+.tag-crit.padrao { background: #EAECEE; color: #566573; }
+
+.obs-textarea {
+    width: 100%; min-height: 40px; padding: 6px 10px; border: 1px solid #D5D8DC; border-radius: 6px;
+    font-family: inherit; font-size: 8.5pt; color: #2C3E50; resize: vertical; background-color: #FFFFFF;
+}
+.obs-textarea:focus { border-color: #2980B9; box-shadow: 0 0 0 2px rgba(41,128,185,0.15); outline: none; }
+.obs-textarea.required-empty { border-color: #C0392B; background: #FDEDEC; }
+.obs-hint { font-size: 7pt; color: #C0392B; margin-top: 3px; display: none; }
+.obs-hint.show { display: block; }
+
+a { color: #2980B9; text-decoration: underline; }
+.footer-note { font-size: 7.5pt; color: #95A5A6; margin-top: 14px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="header-text">
+            <h1 id="main-title">Checklist Operacional de Cadastros</h1>
+            <p id="main-subtitle">Selecione o tipo de processo de cadastro para iniciar</p>
+        </div>
+        <div class="progress-box" id="progress-box">
+            <div class="progress-title">Progresso do processo</div>
+            <div class="progress-val" id="progress-text">0 / 0 (0%)</div>
+            <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-bar-fill"></div></div>
+        </div>
+    </div>
+
+    <div class="info-card">
+        <div id="company-rows-container">
+            <div class="company-row">
+                <div class="info-group">
+                    <label>Razão Social <span class="req">*</span></label>
+                    <input type="text" class="comp-name" placeholder="Ex: CRAFT MULTIMODAL LTDA">
+                </div>
+                <div class="info-group">
+                    <label>Identificador (Código CW / Tax ID / RFC / VAT / NIT) <span class="req">*</span></label>
+                    <input type="text" class="comp-id" placeholder="Ex: CRAFT01 / 12.345.678/0001-90">
+                </div>
+                <div class="info-group">
+                    <label>Operador Responsável <span class="req">*</span></label>
+                    <input type="text" class="user-name" placeholder="Seu nome">
+                </div>
+                <div class="row-spacer"></div>
+            </div>
+        </div>
+        <button class="add-row-btn" onclick="addCompanyRow()">+ Adicionar Empresa</button>
+    </div>
+
+    <div class="selection-screen" id="selection-screen">
+        <h2>Qual tipo de cadastro você vai executar agora?</h2>
+        <p>Escolha uma das opções abaixo para carregar o checklist correspondente e acompanhar seu progresso de validação.</p>
+        <div class="btn-grid">
+            <div class="select-btn" onclick="startChecklist('cliente')">
+                <span class="btn-badge">Módulos AR/AP Completo</span>
+                <h3>Cadastro Completo de Cliente</h3>
+                <p>Validação de duplicidades/CNPJ, consultas externas, parametrizações financeiras (AR/AP), equipe comercial e automações por produto.</p>
+            </div>
+            <div class="select-btn" onclick="startChecklist('simples')">
+                <span class="btn-badge">Shipper / Consignee / Notify</span>
+                <h3>Cadastro Simples</h3>
+                <p>Validação de duplicidades por CNPJ/Nome, verificação de endereço CROSS, UN/LOCODE, CNPJ e tipo de organização no sistema.</p>
+            </div>
+            <div class="select-btn" onclick="startChecklist('agente')">
+                <span class="btn-badge">Global</span>
+                <h3>Cadastro Agente Global</h3>
+                <p>Validação em órgãos internacionais, parâmetro de moedas/CNW no CW, replicação detalhada por filial e produtos no Netship.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="checklist-view" id="checklist-view">
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <button class="back-btn" onclick="showSelection()">← Trocar Tipo de Cadastro</button>
+                <button class="expand-btn" onclick="toggleAllSections(true)">Expandir Tudo</button>
+                <button class="expand-btn" onclick="toggleAllSections(false)">Recolher Tudo</button>
+                <input type="text" class="search-box" id="search-box" placeholder="Buscar item ou instrução..." oninput="filterRows()">
+            </div>
+            <button class="export-btn" onclick="exportToCSV()">📥 Exportar Relatório (CSV)</button>
+        </div>
+
+        <div id="active-checklist-title" style="font-size:13pt; font-weight:bold; color:#1F4E78; margin-bottom:12px;"></div>
+        <div id="sections-container"></div>
+    </div>
+
+    <div class="footer-note">Este arquivo não salva dados automaticamente entre sessões. Exporte o relatório em CSV antes de fechar ou trocar de cadastro.</div>
+</div>
+
+<script>
+// Estrutura: [grupo, item, sistema, instrução, criticidade]
+// criticidade: "critico" ou "padrao"
+const dataCliente = [
+["1. Busca de Duplicidades","Filtro Active Status (Busca)","Sistema / Base","Pesquisar usando o Filtro 'Active Status' (ativos e inativos sem nenhuma cor) para evitar conflitos na busca.","padrao"],
+["1. Busca de Duplicidades","Pesquisa por Nome Chave","Sistema / Base","Buscar por variações do nome para evitar cadastros duplicados.","padrao"],
+["1. Busca de Duplicidades","Pesquisa por CNPJ (Sem Formatação)","Sistema / Base","Buscar CNPJ no formato XXXXXXXXXXXXXX.","critico"],
+["1. Busca de Duplicidades","Pesquisa por CNPJ (Com Formatação)","Sistema / Base","Buscar CNPJ no formato XX.XXX.XXX/XXXX-XX.","critico"],
+["1. Busca de Duplicidades","Análise de Sufixo do Código CW","Sistema / CW","Código CW com número no final (1, 2, 3...) indica forte evidência de inconsistência. Buscar a raiz sem o número para investigar.","critico"],
+["1. Busca de Duplicidades","Tratamento de Merge / Recálculo CW","Sistema / CW","Se eliminar o cadastro sem numeração e mantiver o sufixado (ex: final 1): recorte a Razão Social, digite qualquer tecla, pressione 'Tab' para recalcular o CW original sem número e cole a Razão Social oficial.","critico"],
+["1. Busca de Duplicidades","Reorganização de Sequência CW","Sistema / CW","Caso haja múltiplos cadastros válidos (sem duplicidade real), reorganizar as numerações sequencialmente (sem sufixo no principal, e sufixos 1, 2, 3 nos demais).","padrao"],
+["2. Validação Cadastral Externa","Consulta CNPJ / Razão Social","Receita Federal","Confirmar se Razão Social está idêntica à consulta oficial no <a href='https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/' target='_blank'>site da Receita Federal</a>.","critico"],
+["2. Validação Cadastral Externa","Validação Visual e Endereço","CROSS","Garantir pontuação, vírgulas, Address 1 e Address 2 exatamente iguais ao CROSS.","padrao"],
+["2. Validação Cadastral Externa","Validação Oficial UN/LOCODE","UNECE / Maya","Confirmar o UN/LOCODE correto do município. Em caso de dúvidas ou múltiplas opções de cidade, validar no site oficial da UNECE (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>).","critico"],
+["2. Validação Cadastral Externa","Análise Financeira","Portal Interno / Serasa","Validar se o padrão financeiro e limite estão aprovados.","critico"],
+["2. Validação Cadastral Externa","Mapeamento Comercial & Filial","CROSS","Identificar os comerciais que atendem a conta e a filial responsável.","padrao"],
+["3. Configuração no System / Control-Brent","Filial Atendente","Control-Brent","Preencher o código da filial correta que atende a conta.","critico"],
+["3. Configuração no System / Control-Brent","Organization Type","Módulo Principal","Marcar: Shipper, Consignee, Sales, Receivables (AR) e Payables (AP).","critico"],
+["4. Módulo AR (Accounts Receivable)","Account Group","Módulo AR","Definir obrigatoriamente como 'CUS' (Customer).","critico"],
+["4. Módulo AR (Accounts Receivable)","Defaulting VoiceCourse (Moeda)","Módulo AR","Apagar qualquer moeda preenchida; DEIXAR EM BRANCO.","critico"],
+["5. Módulo AP (Accounts Payable)","Account Single Opie","Módulo AP","Definir obrigatoriamente como 'PRO' (Creditor).","critico"],
+["5. Módulo AP (Accounts Payable)","Currency (Moeda)","Módulo AP","Verificar campo abaixo da moeda e DEIXAR EM BRANCO.","critico"],
+["6. Cadastro de Staff & Equipe Comercial","Vincular Comerciais","Aba Staff","Cadastrar funcionários com setor e função/cargo correspondentes.","padrao"],
+["7. Contatos & E-mails","Formatação de E-mails","Geral","Converter todos os e-mails para letras MINÚSCULAS.","padrao"],
+["7. Contatos & E-mails","E-mails de Grupo","Geral","Remover nome pessoal e usar o e-mail/nome do grupo. Ajustar Job Title para 'Operacional'.","padrao"],
+["8. Automações de Embarque e Fatura","Inativação / Limpeza","Automações","Inativar cadastros de fora da organização, terceiros e contatos internos Craft.","padrao"],
+["8. Automações de Embarque e Fatura","Verificação de Duplicidade","Automações","Excluir automações legadas/duplicadas e vincular aos padrões válidos.","padrao"],
+["8. Automações de Embarque e Fatura","Formato de Documento","Automações","Garantir que o tipo de documento de envio seja PDF (padronizado).","padrao"],
+["8. Automações de Embarque e Fatura","Formato do E-mail","Automações","Configurar formato do envio das automações como HTMF / HTML.","padrao"],
+["8. Automações de Embarque e Fatura","Inclusão de E-mail AR","Contas a Receber","Incluir o e-mail 'ardr@fncraft.com' para avisos de fatura no Contas a Receber.","critico"],
+["8. Automações de Embarque e Fatura","Contatos por Direção (EXPO/IMPO)","Contas a Receber / Automações","Incluir os e-mails operacionais específicos para cada direção de embarque: EXPO (Exportação) e IMPO (Importação).","critico"],
+["8. Automações de Embarque e Fatura","Automações Operacionais Aéreo (LOC)","Automações / Aéreo","Para automações de avisos operacionais (LOC) dos produtos aéreos, incluir contatos específicos: tracking.airimpo@craftmulti.com para AIR IMPO e tracking.airexpo@craftmulti.com para AIR EXPO.","critico"],
+["8. Automações de Embarque e Fatura","Vincular Produtos Específicos","Automações","Configurar automações estritamente para seus produtos específicos (ex: AIR IMPO, AIR EXPO, FCL IMPO, FCL EXPO), nunca liberando para todos os produtos/modais.","critico"],
+["8. Automações de Embarque e Fatura","Job Title em Automações","Automações","Deixar o Job Title DEIXAR EM BRANCO para fácil identificação visual.","padrao"]
+];
+
+const dataSimples = [
+["1. Busca de Duplicidades","Filtro Active Status (Busca)","Sistema / Base","Pesquisar usando o Filtro 'Active Status' (ativos e inativos sem nenhuma cor) para evitar conflitos na busca.","padrao"],
+["1. Busca de Duplicidades","Pesquisa por Nome Chave","Sistema / Base","Buscar por variações do nome para evitar cadastros duplicados.","padrao"],
+["1. Busca de Duplicidades","Pesquisa por CNPJ (Sem Formatação)","Sistema / Base","Buscar CNPJ no formato XXXXXXXXXXXXXX.","critico"],
+["1. Busca de Duplicidades","Pesquisa por CNPJ (Com Formatação)","Sistema / Base","Buscar CNPJ no formato XX.XXX.XXX/XXXX-XX.","critico"],
+["1. Busca de Duplicidades","Análise de Sufixo do Código CW","Sistema / CW","Código CW com número no final (1, 2, 3...) indica forte evidência de inconsistência. Buscar a raiz sem o número para investigar.","critico"],
+["1. Busca de Duplicidades","Tratamento de Merge / Recálculo CW","Sistema / CW","Se eliminar o cadastro sem numeração e mantiver o sufixado (ex: final 1): recorte a Razão Social, digite qualquer tecla, pressione 'Tab' para recalcular o CW original sem número e cole a Razão Social oficial.","critico"],
+["1. Busca de Duplicidades","Reorganização de Sequência CW","Sistema / CW","Caso haja múltiplos cadastros válidos (sem duplicidade real), reorganizar as numerações sequencialmente.","padrao"],
+["2. Validação Externa & Dados","Consulta Receita Federal","Receita Federal","Confirmar Razão Social e dados oficiais no <a href='https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/' target='_blank'>site da Receita Federal</a>.","critico"],
+["2. Validação Externa & Dados","Validação no CROSS","CROSS","Validar nome idêntico (incluindo pontos, vírgulas e abreviações) no CROSS / Pessoas - Abertura.","padrao"],
+["2. Validação Externa & Dados","Formatação de Endereço","CROSS / Receita","Preencher Address 1 (Rua/Nº) e Address 2 (Apto/Bloco/Complemento).","padrao"],
+["2. Validação Externa & Dados","Validação Oficial UN/LOCODE","UNECE / Maya","Confirmar o UN/LOCODE correto do município. Em caso de dúvidas ou múltiplas opções de cidade, validar no site oficial da UNECE (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>).","critico"],
+["3. Regras de Sistema","Control-Brent (Filial)","Control-Brent","DEIXAR EM BRANCO quando for Consignee (sem controle de filial).","padrao"],
+["3. Regras de Sistema","Inclusão de CNPJ","Módulo Principal","Preencher o campo CNPJ completo e validado.","critico"],
+["3. Regras de Sistema","Organization Type","Módulo Principal","Marcar exatamente: Shipper, Consignee e Sales.","critico"]
+];
+
+const dataAgenteGlobal = [
+["1. Validação Global Externa","Validação do Registro Corporativo","Junta / Governo Origem","Consultar portal governamental de origem para confirmar Razão Social oficial e pontuação jurídica exata (ex.: S.A., Ltd., Inc., GmbH).","critico"],
+["1. Validação Global Externa","Validação Fiscal / Tax ID","Órgão Fiscal Local","Validar documento fiscal oficial (NIF/VAT/Tax ID) no portal do país de origem.","critico"],
+["1. Validação Global Externa","Verificação UN/LOCODE / UNLOCO","ONU / UN-LOCODE","Validar o UNLOCO preferencialmente pela base oficial da UNECE/ONU (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>).","critico"],
+["1. Validação Global Externa","Formatação de Canais Web","Geral","Garantir e-mails e website integralmente em letras MINÚSCULAS. Telefones com DDI (+).","padrao"],
+["2. CargoWise (CW) - Matriz","Organization Type","CargoWise (CW)","Flegar as funções: Sales, Forwarder/Agent, Receivables (AR) e Payables (AP).","critico"],
+["2. CargoWise (CW) - Matriz","Configuração Módulo AR","CargoWise (CW)","Receivables (AR) - Definir Account Group como 'CNW' e Tax Details como 'Não'.","critico"],
+["2. CargoWise (CW) - Matriz","Configuração Módulo AP","CargoWise (CW)","Payables (AP) - Definir Account Group como 'CNW' e Tax Details como 'Não'.","critico"],
+["2. CargoWise (CW) - Matriz","Limpeza de Moeda (Currency)","CargoWise (CW)","Deletar qualquer informação no campo Currency (CUR) nos módulos AR/AP. DEIXAR EM BRANCO.","critico"],
+["2. CargoWise (CW) - Matriz","Estrutura Bancária","CargoWise (CW)","Diferenciar Account Number e Branch Code. No Branch, inserir apenas a numeração oficial da agência.","critico"],
+["3. Replicação CargoWise (CW)","3.1 Argentina","CargoWise (CW)","Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO.","padrao"],
+["3. Replicação CargoWise (CW)","3.2 Bolívia","CargoWise (CW)","Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO.","padrao"],
+["3. Replicação CargoWise (CW)","3.3 Brasil","CargoWise (CW)","Validar parâmetros AR/AP locais cadastrados.","padrao"],
+["3. Replicação CargoWise (CW)","3.4 Chile","CargoWise (CW)","Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO.","padrao"],
+["3. Replicação CargoWise (CW)","3.5 Colômbia","CargoWise (CW)","Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO.","padrao"],
+["3. Replicação CargoWise (CW)","3.6 Equador","CargoWise (CW)","Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO.","padrao"],
+["3. Replicação CargoWise (CW)","3.7 Estados Unidos (EUA)","CargoWise (CW)","Manter Account Group 'CNW' e garantir campo Moeda VAZIO (sem alterar Tax Details).","padrao"],
+["3. Replicação CargoWise (CW)","3.8 México","CargoWise (CW)","Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO.","padrao"],
+["3. Replicação CargoWise (CW)","3.9 Paraguai","CargoWise (CW)","Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO.","padrao"],
+["3. Replicação CargoWise (CW)","3.10 Peru","CargoWise (CW)","Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO.","padrao"],
+["3. Replicação CargoWise (CW)","3.11 Uruguai","CargoWise (CW)","Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO.","padrao"],
+["3. Replicação CargoWise (CW)","3.12 LADY MARINA","CargoWise (CW)","Acessar AR/AP. Manter Account Group 'CNW', Tax Details 'Não' e campo Moeda VAZIO.","padrao"],
+["4. Netship - Base & Produtos","Higienização de Texto","Netship","Remover rigorosamente espaços em branco no início e final de todas as linhas e campos.","padrao"],
+["4. Netship - Base & Produtos","Réplica do Endereço & Tax ID","Netship","Replicar exato endereço do CW. Preencher Tax ID local no campo correto. Não incluir dados exclusivos do Brasil (ex: SISCARGA).","critico"],
+["4. Netship - Base & Produtos","Liberação de Produtos","Netship","Marcar obrigatoriamente todos os produtos: FCL IMPO, FCL EXPO, LCL IMPO, LCL EXPO e AIR.","critico"],
+["4. Netship - Base & Produtos","Consolidação Bancária","Netship","Agrupar dados no mesmo banco sem duplicar linhas. Linha 1: Nome Banco | Linha 2: SWIFT/BIC | Linhas 3+: Contas/IBANs.","critico"],
+["4. Netship - Base & Produtos","Padronização de Contatos","Netship","Contatos de e-mail: Sanitizar espaços, preencher NOME EM MAIÚSCULAS e definir Job Title profissional específico.","padrao"],
+["5. Netship - Replicação por País","5.1 Argentina","Netship","Acessar Netship Argentina e replicar a exata formatação padronizada.","padrao"],
+["5. Netship - Replicação por País","5.2 Bolívia","Netship","Acessar Netship Bolívia e replicar a exata formatação padronizada.","padrao"],
+["5. Netship - Replicação por País","5.3 Brasil","Netship","Validar cadastro-base Netship Brasil (inclui SISCARGA se aplicável).","padrao"],
+["5. Netship - Replicação por País","5.4 Chile","Netship","Acessar Netship Chile e replicar a exata formatação padronizada.","padrao"],
+["5. Netship - Replicação por País","5.5 Colômbia","Netship","Acessar Netship Colômbia e replicar a exata formatação padronizada.","padrao"],
+["5. Netship - Replicação por País","5.6 Equador","Netship","Acessar Netship Equador e replicar a exata formatação padronizada.","padrao"],
+["5. Netship - Replicação por País","5.7 México","Netship","Acessar Netship México e replicar a exata formatação padronizada.","padrao"],
+["5. Netship - Replicação por País","5.8 Paraguai","Netship","Acessar Netship Paraguai e replicar a exata formatação padronizada.","padrao"],
+["5. Netship - Replicação por País","5.9 Peru","Netship","Acessar Netship Peru e replicar a exata formatação padronizada.","padrao"],
+["5. Netship - Replicação por País","5.10 Uruguai","Netship","Acessar Netship Uruguai e replicar a exata formatação padronizada.","padrao"],
+["5. Netship - Replicação por País","5.11 LADY MARINA","Netship","Acessar Netship Lady Marina e replicar a exata formatação padronizada.","padrao"]
+];
+
+let currentType = '';
+let hasUnexportedProgress = false;
+
+function addCompanyRow() {
+    const container = document.getElementById('company-rows-container');
+    const newRow = document.createElement('div');
+    newRow.className = 'company-row';
+    newRow.innerHTML = `
+        <div class="info-group"><input type="text" class="comp-name" placeholder="Ex: Panalpina Inc / Silva S.A."></div>
+        <div class="info-group"><input type="text" class="comp-id" placeholder="Ex: PANALP01 / 12.345.678/0001-90"></div>
+        <div class="info-group"><input type="text" class="user-name" placeholder="Seu nome"></div>
+        <button class="remove-row-btn" onclick="removeCompanyRow(this)" title="Remover empresa">✕</button>
+    `;
+    container.appendChild(newRow);
+}
+
+function removeCompanyRow(btn) {
+    const container = document.getElementById('company-rows-container');
+    if (container.children.length > 1) btn.parentElement.remove();
+}
+
+function startChecklist(type) {
+    currentType = type;
+    document.getElementById('selection-screen').style.display = 'none';
+    document.getElementById('checklist-view').style.display = 'block';
+    document.getElementById('progress-box').style.display = 'block';
+
+    let data = [], title = '', subtitle = '', mainTitle = '';
+    if (type === 'cliente') {
+        data = dataCliente; mainTitle = 'Cadastro Completo de Cliente';
+        title = 'Checklist: Cadastro Completo de Cliente (Com Módulos AR/AP)';
+        subtitle = 'Processo ativo: Cliente Completo (AR/AP)';
+    } else if (type === 'simples') {
+        data = dataSimples; mainTitle = 'Cadastro Simples';
+        title = 'Checklist: Cadastro Simples (Shipper / Consignee / Notify)';
+        subtitle = 'Processo ativo: Cadastro Simples';
+    } else if (type === 'agente') {
+        data = dataAgenteGlobal; mainTitle = 'Cadastro Agente Global';
+        title = 'Checklist: Cadastro Global de Agentes (CargoWise & Netship)';
+        subtitle = 'Processo ativo: Agente Global';
+    }
+
+    document.getElementById('main-title').innerText = mainTitle;
+    document.getElementById('active-checklist-title').innerText = title;
+    document.getElementById('main-subtitle').innerText = subtitle;
+
+    renderSections(data);
+    updateProgress();
+    hasUnexportedProgress = false;
+}
+
+function showSelection() {
+    if (hasUnexportedProgress) {
+        const ok = confirm('Você tem progresso não exportado neste checklist. Deseja realmente trocar de tipo de cadastro? O progresso atual será perdido.');
+        if (!ok) return;
+    }
+    document.getElementById('selection-screen').style.display = 'block';
+    document.getElementById('checklist-view').style.display = 'none';
+    document.getElementById('progress-box').style.display = 'none';
+    document.getElementById('main-title').innerText = 'Checklist Operacional de Cadastros';
+    document.getElementById('main-subtitle').innerText = 'Selecione o tipo de processo de cadastro para iniciar';
+    hasUnexportedProgress = false;
+}
+
+function renderSections(data) {
+    const container = document.getElementById('sections-container');
+    container.innerHTML = '';
+
+    const groups = [];
+    const groupIndex = {};
+    data.forEach((item) => {
+        const g = item[0];
+        if (!(g in groupIndex)) { groupIndex[g] = groups.length; groups.push({ name: g, items: [] }); }
+        groups[groupIndex[g]].items.push(item);
+    });
+
+    groups.forEach((group, gIdx) => {
+        const block = document.createElement('div');
+        block.className = 'section-block';
+        block.id = `section-${gIdx}`;
+
+        const header = document.createElement('div');
+        header.className = 'section-header';
+        header.innerHTML = `
+            <span onclick="toggleSection(${gIdx})" style="cursor:pointer; flex:1;">
+                <span class="section-caret">▼</span> ${group.name}
+                <span class="section-count" id="section-count-${gIdx}"></span>
+            </span>
+            <span class="section-actions">
+                <button class="section-mini-btn" onclick="setSectionStatus(${gIdx}, 'concluido')">Marcar tudo concluído</button>
+                <button class="section-mini-btn" onclick="setSectionStatus(${gIdx}, 'nao-aplica')">Marcar N/A</button>
+                <button class="section-mini-btn" onclick="setSectionStatus(${gIdx}, 'pendente')">Resetar</button>
+            </span>
+        `;
+
+        const table = document.createElement('table');
+        table.innerHTML = `
+            <thead><tr>
+                <th style="width:15%;">Status</th>
+                <th style="width:22%;">Item</th>
+                <th style="width:12%;">Sistema / Fonte</th>
+                <th style="width:31%;">Instrução / Regra Detalhada</th>
+                <th style="width:20%;">Observações</th>
+            </tr></thead>
+            <tbody id="tbl-${gIdx}"></tbody>
+        `;
+
+        block.appendChild(header);
+        block.appendChild(table);
+        container.appendChild(block);
+
+        const tbody = table.querySelector('tbody');
+        group.items.forEach((item, iIdx) => {
+            const rowId = `row-${gIdx}-${iIdx}`;
+            const critLabel = item[4] === 'critico' ? 'Crítico' : 'Padrão';
+            const row = document.createElement('tr');
+            row.id = rowId;
+            row.className = 'status-pendente';
+            row.dataset.searchtext = (item[1] + ' ' + item[3]).toLowerCase();
+            row.innerHTML = `
+                <td>
+                    <select class="status-select pendente" onchange="onStatusChange('${rowId}', this)">
+                        <option value="pendente">Pendente</option>
+                        <option value="concluido">Concluído</option>
+                        <option value="nao-aplica">Não se aplica</option>
+                        <option value="bloqueado">Bloqueado</option>
+                    </select>
+                </td>
+                <td class="item-cell"><strong>${item[1]}</strong><br><span class="tag-crit ${item[4]}">${critLabel}</span></td>
+                <td><span class="tag">${item[2]}</span></td>
+                <td>${item[3]}</td>
+                <td>
+                    <textarea class="obs-textarea" placeholder="Anotações / pendências..." oninput="onObsInput('${rowId}', this)"></textarea>
+                    <div class="obs-hint" id="hint-${rowId}">Observação obrigatória quando o status é "Bloqueado".</div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        updateSectionCount(gIdx);
+    });
+}
+
+function toggleSection(idx) {
+    document.getElementById(`section-${idx}`).classList.toggle('collapsed');
+}
+
+function toggleAllSections(expand) {
+    document.querySelectorAll('.section-block').forEach(b => {
+        if (expand) b.classList.remove('collapsed'); else b.classList.add('collapsed');
+    });
+}
+
+function onStatusChange(rowId, selectEl) {
+    const row = document.getElementById(rowId);
+    const status = selectEl.value;
+    row.className = 'status-' + status;
+    selectEl.className = 'status-select ' + (status === 'nao-aplica' ? 'nao-aplica' : status);
+    hasUnexportedProgress = true;
+
+    const hint = document.getElementById(`hint-${rowId}`);
+    const obs = row.querySelector('.obs-textarea');
+    if (status === 'bloqueado' && obs.value.trim() === '') {
+        hint.classList.add('show');
+        obs.classList.add('required-empty');
+    } else {
+        hint.classList.remove('show');
+        obs.classList.remove('required-empty');
+    }
+
+    const sectionIdx = rowId.split('-')[1];
+    updateSectionCount(sectionIdx);
+    updateProgress();
+}
+
+function onObsInput(rowId, textareaEl) {
+    hasUnexportedProgress = true;
+    const row = document.getElementById(rowId);
+    const select = row.querySelector('.status-select');
+    const hint = document.getElementById(`hint-${rowId}`);
+    if (select.value === 'bloqueado' && textareaEl.value.trim() === '') {
+        hint.classList.add('show');
+        textareaEl.classList.add('required-empty');
+    } else {
+        hint.classList.remove('show');
+        textareaEl.classList.remove('required-empty');
+    }
+}
+
+function setSectionStatus(gIdx, status) {
+    const tbody = document.getElementById(`tbl-${gIdx}`);
+    tbody.querySelectorAll('select.status-select').forEach(sel => {
+        sel.value = status;
+        onStatusChange(sel.closest('tr').id, sel);
+    });
+}
+
+function updateSectionCount(gIdx) {
+    const tbody = document.getElementById(`tbl-${gIdx}`);
+    if (!tbody) return;
+    const total = tbody.querySelectorAll('tr').length;
+    const done = tbody.querySelectorAll('tr.status-concluido, tr.status-nao-aplica').length;
+    const countEl = document.getElementById(`section-count-${gIdx}`);
+    if (countEl) countEl.innerText = `(${done} / ${total})`;
+}
+
+function updateProgress() {
+    const allRows = document.querySelectorAll('#sections-container tr[id^="row-"]');
+    const total = allRows.length;
+    let done = 0;
+    allRows.forEach(r => {
+        if (r.className === 'status-concluido' || r.className === 'status-nao-aplica') done++;
+    });
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progress-text').innerText = `${done} / ${total} (${pct}%)`;
+    document.getElementById('progress-bar-fill').style.width = pct + '%';
+}
+
+function filterRows() {
+    const term = document.getElementById('search-box').value.toLowerCase().trim();
+    document.querySelectorAll('#sections-container tr[id^="row-"]').forEach(row => {
+        if (term === '' || row.dataset.searchtext.includes(term)) {
+            row.classList.remove('hidden-row');
+        } else {
+            row.classList.add('hidden-row');
+        }
+    });
+}
+
+function validateCompanyFields() {
+    let valid = true;
+    document.querySelectorAll('.company-row').forEach(row => {
+        ['comp-name', 'comp-id', 'user-name'].forEach(cls => {
+            const input = row.querySelector('.' + cls);
+            if (!input.value.trim()) {
+                input.classList.add('invalid');
+                valid = false;
+            } else {
+                input.classList.remove('invalid');
+            }
+        });
+    });
+    return valid;
+}
+
+function statusLabel(cls) {
+    if (cls === 'status-concluido') return 'CONCLUIDO';
+    if (cls === 'status-nao-aplica') return 'NAO SE APLICA';
+    if (cls === 'status-bloqueado') return 'BLOQUEADO';
+    return 'PENDENTE';
+}
+
+function exportToCSV() {
+    if (!validateCompanyFields()) {
+        alert('Preencha Razão Social, Identificador e Operador Responsável de todas as empresas antes de exportar.');
+        return;
+    }
+
+    const companyRows = document.querySelectorAll('.company-row');
+    let companiesList = [];
+    let allNames = [];
+    companyRows.forEach((row) => {
+        const cName = row.querySelector('.comp-name').value.trim();
+        const cId = row.querySelector('.comp-id').value.trim();
+        const uName = row.querySelector('.user-name').value.trim();
+        companiesList.push(`${cName} | ID: ${cId} | Resp: ${uName}`);
+        allNames.push(cName.replace(/[^a-zA-Z0-9]/g, '_'));
+    });
+
+    const now = new Date().toLocaleString('pt-BR');
+    let csvContent = "\uFEFF";
+    csvContent += `RELATORIO DE CONFERENCIA DE CADASTRO - CRAFT\n`;
+    csvContent += `Empresas Processadas;"${companiesList.join(' / ')}"\n`;
+    csvContent += `Data de Exportacao;${now}\n`;
+    csvContent += `Tipo de Processo;${document.getElementById('active-checklist-title').innerText}\n\n`;
+    csvContent += `Status;Grupo;Item;Sistema;Instrucao;Criticidade;Observacoes\n`;
+
+    document.querySelectorAll('#sections-container .section-block').forEach(block => {
+        const groupName = block.querySelector('.section-header span').innerText.split('(')[0].replace('▼', '').trim();
+        block.querySelectorAll('tbody tr').forEach(row => {
+            const status = statusLabel(row.className);
+            const itemText = row.querySelector('.item-cell strong').innerText.replace(/;/g, ',');
+            const critText = row.querySelector('.tag-crit').innerText.replace(/;/g, ',');
+            const sysText = row.children[2].querySelector('.tag').innerText.replace(/;/g, ',');
+            const ruleText = row.children[3].innerText.replace(/;/g, ',');
+            const obsText = row.querySelector('.obs-textarea').value.replace(/;/g, ',').replace(/\n/g, ' ');
+            csvContent += `${status};"${groupName}";"${itemText}";"${sysText}";"${ruleText}";"${critText}";"${obsText}"\n`;
+        });
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    const fileName = `Checklist_${allNames.join('_') || 'Cadastro'}.csv`;
+    link.setAttribute('href', url);
+    link.setAttribute('download', fileName);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    hasUnexportedProgress = false;
+}
+
+window.addEventListener('beforeunload', function (e) {
+    if (hasUnexportedProgress) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+</script>
+</body>
+</html>
