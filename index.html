@@ -174,6 +174,19 @@ tr.hidden-row { display: none; }
 
 a { color: var(--brand); text-decoration: underline; }
 .footer-note { font-size: 7.5pt; color: #9AA6B0; margin-top: 16px; text-align: center; }
+
+.modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(35,48,61,0.55);
+    align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+    background: var(--surface); border-radius: 10px; padding: 24px 26px; max-width: 460px; width: 100%;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+.modal-title { font-size: 12pt; font-weight: 600; color: var(--brand); margin-bottom: 10px; }
+.modal-message { font-size: 9.5pt; color: var(--ink); white-space: pre-line; line-height: 1.5; margin-bottom: 20px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
 </style>
 </head>
 <body>
@@ -256,6 +269,17 @@ a { color: var(--brand); text-decoration: underline; }
     </div>
 
     <div class="footer-note">Cada tipo de cadastro (Cliente, Simples, Agente) é salvo separadamente neste navegador. O progresso não sincroniza entre computadores nem sobrevive à limpeza do cache — exporte o relatório em CSV para guardar uma cópia definitiva.</div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-title" id="modal-title"></div>
+        <div class="modal-message" id="modal-message"></div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" id="modal-cancel-btn">Cancelar</button>
+            <button class="btn btn-primary" id="modal-confirm-btn">OK</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -354,6 +378,35 @@ let hasUnexportedProgress = false;
 const STORAGE_PREFIX = 'craft_checklist_cadastro_v2_';
 let saveTimeout = null;
 
+function showModal({ title, message, confirmText = 'OK', cancelText = 'Cancelar', showCancel = true }) {
+    return new Promise(resolve => {
+        const overlay = document.getElementById('modal-overlay');
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-message').innerText = message;
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+        const cancelBtn = document.getElementById('modal-cancel-btn');
+        confirmBtn.innerText = confirmText;
+        cancelBtn.innerText = cancelText;
+        cancelBtn.style.display = showCancel ? 'inline-block' : 'none';
+
+        function cleanup(result) {
+            overlay.classList.remove('show');
+            confirmBtn.removeEventListener('click', onConfirm);
+            cancelBtn.removeEventListener('click', onCancel);
+            overlay.removeEventListener('click', onOverlayClick);
+            resolve(result);
+        }
+        function onConfirm() { cleanup(true); }
+        function onCancel() { cleanup(false); }
+        function onOverlayClick(e) { if (e.target === overlay) cleanup(false); }
+
+        confirmBtn.addEventListener('click', onConfirm);
+        cancelBtn.addEventListener('click', onCancel);
+        overlay.addEventListener('click', onOverlayClick);
+        overlay.classList.add('show');
+    });
+}
+
 function storageKey(type) {
     return STORAGE_PREFIX + type;
 }
@@ -447,9 +500,14 @@ function summarizeSavedState(state) {
     return { total, done, pct, companyNames };
 }
 
-function clearSavedState() {
+async function clearSavedState() {
     if (!currentType) return;
-    const ok = confirm('Isso vai apagar o progresso salvo deste tipo de cadastro neste navegador. Os demais tipos de cadastro salvos não são afetados. Deseja continuar?');
+    const ok = await showModal({
+        title: 'Limpar progresso salvo',
+        message: 'Isso vai apagar o progresso salvo deste tipo de cadastro neste navegador. Os demais tipos de cadastro salvos não são afetados.\n\nDeseja continuar?',
+        confirmText: 'Limpar',
+        cancelText: 'Cancelar'
+    });
     if (!ok) return;
     localStorage.removeItem(storageKey(currentType));
     location.reload();
@@ -543,17 +601,24 @@ function removeCompanyRow(btn) {
     scheduleSave();
 }
 
-function startChecklist(type, isRestoring) {
+async function startChecklist(type, isRestoring) {
     if (!isRestoring) {
         const saved = peekSavedState(type);
         if (saved) {
             const s = summarizeSavedState(saved);
             const savedDate = saved.savedAt ? new Date(saved.savedAt).toLocaleString('pt-BR') : 'data desconhecida';
             const who = s.companyNames.length ? s.companyNames.join(', ') : 'sem nome preenchido';
-            const ok = confirm(`Existe um progresso salvo para este tipo de cadastro (${who}), de ${savedDate}, com ${s.done}/${s.total} itens (${s.pct}%). Deseja continuar de onde parou?\n\nOK = continuar\nCancelar = começar um cadastro novo (o progresso salvo anterior será substituído ao salvar)`);
+            const ok = await showModal({
+                title: 'Progresso salvo encontrado',
+                message: `Existe um progresso salvo para este tipo de cadastro (${who}), de ${savedDate}, com ${s.done}/${s.total} itens (${s.pct}%).\n\nDeseja continuar de onde parou?`,
+                confirmText: 'Continuar de onde parei',
+                cancelText: 'Começar do zero'
+            });
             if (ok) {
                 applySavedState(saved);
                 return;
+            } else {
+                try { localStorage.removeItem(storageKey(type)); } catch (e) {}
             }
         }
     }
@@ -792,9 +857,14 @@ function statusLabel(cls) {
     return 'PENDENTE';
 }
 
-function exportToCSV() {
+async function exportToCSV() {
     if (!validateCompanyFields()) {
-        alert('Preencha Razão Social, Identificador e Operador Responsável de todas as empresas antes de exportar.');
+        await showModal({
+            title: 'Campos obrigatórios pendentes',
+            message: 'Preencha Razão Social, Identificador e Operador Responsável de todas as empresas antes de exportar.',
+            confirmText: 'Entendi',
+            showCancel: false
+        });
         return;
     }
 
