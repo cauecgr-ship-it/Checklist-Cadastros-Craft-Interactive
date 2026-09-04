@@ -249,9 +249,9 @@
             </div>
 
             <div class="select-btn" onclick="startChecklist('agente')">
-                <span class="btn-badge">Global / Multilatina</span>
+                <span class="btn-badge">Global</span>
                 <h3>Cadastro Agente Global</h3>
-                <p>Validação em órgãos internacionais, parâmetro de moedas/CNW no CW, replicação multilatina em filiais e configuração de produtos no NetShip.</p>
+                <p>Validação em órgãos internacionais, parâmetro de moedas/CNW no CW, replicação multilatina em filiais e configuração de produtos no Netship.</p>
             </div>
         </div>
     </div>
@@ -334,21 +334,22 @@
     const dataAgenteGlobal = [
         ["1. Validação Global Externa", "Validação do Registro Corporativo", "Junta / Governo Origem", "Consultar portal governamental de origem para confirmar Razão Social oficial e pontuação jurídica exata (ex.: S.A., Ltd., Inc., GmbH)."],
         ["1. Validação Global Externa", "Validação Fiscal / Tax ID", "Órgão Fiscal Local", "Validar documento fiscal oficial (NIF/VAT/Tax ID) no portal do país de origem."],
-        ["1. Validação Global Externa", "Verificação UN/LOCODE / Alo Code", "ONU / UN-LOCODE", "Validar o Alo Code preferencialmente pela base oficial da ONU."],
+        ["1. Validação Global Externa", "Verificação UN/LOCODE / UNLOCO", "ONU / UN-LOCODE", "validar no site oficial da UNECE (<a href='https://unece.org/trade/cefact/unlocode-code-list-country-and-territory' target='_blank'>unece.org</a>)."],
+        ["2. Validação Cadastral Externa", "Análise Financeira", "Portal Interno / Serasa", "Validar se o padrão financeiro e limite estão aprovados."],
         ["1. Validação Global Externa", "Formatação de Canais Web", "Geral", "Garantir e-mails e website integralmente em letras MINÚSCULAS. Telefones com DDI (+)."],
         ["2. CargoWise (CW) - Matriz", "Organization Type", "CargoWise (CW)", "Flegar as funções: Sales, Foreign Agent, Receivables (AR) e Payables (AP)."],
-        ["2. CargoWise (CW) - Matriz", "Configuração Módulo AR", "CargoWise (CW)", "Definir Account Group como 'CNW' e Tax Details como 'Não'."],
-        ["2. CargoWise (CW) - Matriz", "Configuração Módulo AP", "CargoWise (CW)", "Definir Account Group como 'CNW' e Tax Details como 'Não'."],
+        ["2. CargoWise (CW) - Matriz", "Configuração Módulo AR", "CargoWise (CW)", "Receivables (AR) - Definir Account Group como 'CNW' e Tax Details como 'Não'."],
+        ["2. CargoWise (CW) - Matriz", "Configuração Módulo AP", "CargoWise (CW)", "Payables (AP) - Definir Account Group como 'CNW' e Tax Details como 'Não'."],
         ["2. CargoWise (CW) - Matriz", "Limpeza de Moeda (Currency)", "CargoWise (CW)", "Deletar qualquer informação no campo Currency (CUR) nos módulos AR/AP. DEIXAR EM BRANCO."],
         ["2. CargoWise (CW) - Matriz", "Estrutura Bancária", "CargoWise (CW)", "Diferenciar Account Number e Branch Code. No Branch, inserir apenas a numeração oficial da agência."],
-        ["3. Replicação Filiais CW", "Replicação Multilatina Geral", "CargoWise (CW)", "Acessar AR/AP/BOS de todas as filiais (AR, BO, CL, CO, EC, MX, PY, PE, UY, Leyde Marina). Manter CNW, Tax Details 'Não' e campo Moeda VAZIO."],
+        ["3. Replicação Filiais CW", "Replicação Multilatina Geral", "CargoWise (CW)", "Configurar os módulos AR/AP de todas as filiais (AR, BO, CL, CO, EC, MX, PY, PE, UY, Lady Marina). Manter CNW, Tax Details 'Não' e campo Moeda VAZIO."],
         ["3. Replicação Filiais CW", "Exceção Estados Unidos (EUA)", "CargoWise (CW)", "Na filial EUA, aplicar Account Group 'CNW' e garantir campo Moeda VAZIO (sem alterar Tax Details)."],
-        ["4. NetShip - Base & Produtos", "Higienização de Texto", "NetShip", "Remover rigorosamente espaços em branco no início e final de todas as linhas e campos."],
-        ["4. NetShip - Base & Produtos", "Réplica do Endereço & Tax ID", "NetShip", "Replicar exato endereço do CW. Preencher Tax ID local no campo correto. Não incluir dados exclusivos do Brasil (ex: SISCARGA)."],
-        ["4. NetShip - Base & Produtos", "Liberação de Produtos", "NetShip", "Marcar obrigatoriamente todos os produtos: FCL IMPO, FCL EXPO, LCL IMPO, LCL EXPO e Aéreo."],
-        ["4. NetShip - Base & Produtos", "Consolidação Bancária", "NetShip", "Agrupar dados no mesmo banco sem duplicar linhas. Linha 1: Nome Banco | Linha 2: SWIFT/BIC | Linhas 3+: Contas/IBANs."],
-        ["4. NetShip - Base & Produtos", "Padronização de Contatos", "NetShip", "Na aba da carta, sanitizar espaços, preencher NOME EM MAIÚSCULAS e definir Job Title profissional específico."],
-        ["5. NetShip - Replicação", "Replicação por País NetShip", "NetShip", "Entrar no NetShip de cada país e replicar rigorosamente a mesma formatação padronizada."]
+        ["4. Netship - Base & Produtos", "Higienização de Texto", "Netship", "Remover rigorosamente espaços em branco no início e final de todas as linhas e campos."],
+        ["4. Netship - Base & Produtos", "Réplica do Endereço & Tax ID", "Netship", "Replicar exato endereço do CW. Preencher Tax ID local no campo correto. Não incluir dados exclusivos do Brasil (ex: SISCARGA)."],
+        ["4. Netship - Base & Produtos", "Liberação de Produtos", "Netship", "Marcar obrigatoriamente todos os produtos: FCL IMPO, FCL EXPO, LCL IMPO, LCL EXPO e AIR."],
+        ["4. Netship - Base & Produtos", "Consolidação Bancária", "Netship", "Agrupar dados no mesmo banco sem duplicar linhas. Linha 1: Nome Banco | Linha 2: SWIFT/BIC | Linhas 3+: Contas/IBANs."],
+        ["4. Netship - Base & Produtos", "Padronização de Contatos", "Netship", "Contatos de e-mail: Sanitizar espaços, preencher NOME EM MAIÚSCULAS e definir Job Title profissional específico."],
+        ["5. Netship - Replicação", "Replicação por País Netship", "Netship", "Entrar no Netship de cada país e replicar rigorosamente a mesma formatação padronizada."]
     ];
 
     let currentType = '';
@@ -373,7 +374,7 @@
             subtitle = 'Processo ativo: Cadastro Simples';
         } else if (type === 'agente') {
             data = dataAgenteGlobal;
-            title = 'Checklist: Cadastro Global de Agentes (CargoWise & NetShip)';
+            title = 'Checklist: Cadastro Global de Agentes (CargoWise & Netship)';
             subtitle = 'Processo ativo: Agente Global';
         }
         
